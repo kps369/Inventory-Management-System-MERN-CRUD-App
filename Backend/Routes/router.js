@@ -9,47 +9,46 @@ router.post("/insertproduct", authMiddleware, async (req, res) => {
 
     try {
         const pre = await products.findOne({ ProductBarcode: ProductBarcode })
-        console.log(pre);
 
         if (pre) {
-            res.status(422).json("Product is already added.")
+            return res.status(422).json({ error: "Product is already added." });
         }
         else {
             const addProduct = new products({ ProductName, ProductPrice, ProductBarcode })
 
             await addProduct.save();
-            res.status(201).json(addProduct)
-            console.log(addProduct)
+            return res.status(201).json(addProduct)
         }
     }
     catch (err) {
-        console.log(err)
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
 //Getting(Reading) Data:
-router.get('/products', async (req, res) => {
+router.get('/products', authMiddleware, async (req, res) => {
 
     try {
         const getProducts = await products.find({})
-        console.log(getProducts);
-        res.status(201).json(getProducts);
+        return res.status(200).json(getProducts);
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
 //Getting(Reading) individual Data:
-router.get('/products/:id', async (req, res) => {
+router.get('/products/:id', authMiddleware, async (req, res) => {
 
     try {
         const getProduct = await products.findById(req.params.id);
-        console.log(getProduct);
-        res.status(201).json(getProduct);
+        return res.status(200).json(getProduct);
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
@@ -59,11 +58,11 @@ router.put('/updateproduct/:id', authMiddleware, async (req, res) => {
 
     try {
         const updateProducts = await products.findByIdAndUpdate(req.params.id, { ProductName, ProductPrice, ProductBarcode }, { new: true });
-        console.log("Data Updated");
-        res.status(201).json(updateProducts);
+        return res.status(200).json(updateProducts);
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
@@ -72,11 +71,11 @@ router.delete('/deleteproduct/:id', authMiddleware, async (req, res) => {
 
     try {
         const deleteProduct = await products.findByIdAndDelete(req.params.id);
-        console.log("Data Deleted");
-        res.status(201).json(deleteProduct);
+        return res.status(200).json(deleteProduct);
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 })
 
