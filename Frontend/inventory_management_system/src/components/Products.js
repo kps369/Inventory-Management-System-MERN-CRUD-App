@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { NavLink } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext';
 
 export default function Products() {
+    const { token } = useContext(AuthContext);
 
     useEffect(() => {
         getProducts();
@@ -38,7 +40,8 @@ export default function Products() {
         const response = await fetch(`http://localhost:3001/deleteproduct/${id}`, {
             method: "DELETE",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             }
         });
 

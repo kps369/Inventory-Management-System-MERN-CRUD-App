@@ -1,3 +1,4 @@
+require('dotenv').config();
 const connectToMongo = require('./db')
 connectToMongo();
 
@@ -10,7 +11,10 @@ const router = require('./Routes/router')
 
 app.use(cors());
 app.use(express.json());
+
+// Define Routes
 app.use(router);
+app.use('/api/auth', require('./Routes/auth'));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

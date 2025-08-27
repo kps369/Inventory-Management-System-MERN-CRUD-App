@@ -4,9 +4,16 @@ A simple MERN project that lets the user insert, update, delete & get products f
 
 ## To Run App:
 
-### 1. Open the folder in vs code and run (npm install) command.
+### 1. Environment Setup
+   - In the `Backend` directory, create a file named `.env`.
+   - Add the following line to the file, replacing the value with your own secret string:
+     ```
+     JWT_SECRET=your_super_secret_key_that_is_long_and_random
+     ```
+
+### 2. Open the folder in vs code and run (npm install) command in both `Backend` and `Frontend/inventory_management_system` directories.
    
-### 2. In MongoDB Compass:
+### 3. In MongoDB Compass:
    - Create Database: IMS
    - Collection Name: products
 

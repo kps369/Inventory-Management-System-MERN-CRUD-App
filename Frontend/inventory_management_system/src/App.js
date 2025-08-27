@@ -5,35 +5,41 @@ import Products from './components/Products';
 import InsertProduct from './components/InsertProduct'
 import UpdateProduct from './components/UpdateProduct';
 import About from './components/About';
+import Register from './components/Register';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
 
 import {
   BrowserRouter as Router,
   Routes,
   Route
 } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
 
 
 
 function App() {
   return (
-    <div className="App">
-      <Navbar title="IMS" about="About"></Navbar>
-
+    <AuthProvider>
       <Router>
-        <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/insertproduct" element={<InsertProduct />} />
-          <Route path="/updateproduct/:id" element={<UpdateProduct />} />
-          <Route path="/about" element={<About />} />
+        <div className="App">
+          <Navbar title="IMS" about="About"></Navbar>
+          <Routes>
+            {/* Public Routes */}
+            <Route exact path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
 
-        </Routes>
-
+            {/* Protected Routes */}
+            <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
+            <Route path="/insertproduct" element={<PrivateRoute><InsertProduct /></PrivateRoute>} />
+            <Route path="/updateproduct/:id" element={<PrivateRoute><UpdateProduct /></PrivateRoute>} />
+          </Routes>
+        </div>
       </Router>
-
-
-    </div>
+    </AuthProvider>
   );
 }
 

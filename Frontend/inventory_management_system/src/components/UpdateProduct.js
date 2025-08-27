@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-export default function InsertProduct() {
+export default function UpdateProduct() {
+    const { token } = useContext(AuthContext);
     const [productName, setProductName] = useState("");
     const [productPrice, setProductPrice] = useState();
     const [productBarcode, setProductBarcode] = useState();
@@ -67,7 +69,8 @@ export default function InsertProduct() {
             const response = await fetch(`http://localhost:3001/updateproduct/${id}`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ "ProductName": productName, "ProductPrice": productPrice, "ProductBarcode": productBarcode })
             });
