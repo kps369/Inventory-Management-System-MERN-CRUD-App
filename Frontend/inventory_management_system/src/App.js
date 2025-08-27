@@ -8,6 +8,7 @@ import About from './components/About';
 import Register from './components/Register';
 import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
+import RegistrationSuccess from './components/RegistrationSuccess';
 
 import {
   BrowserRouter as Router,
@@ -31,6 +32,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register-success" element={<RegistrationSuccess />} />
 
             {/* Protected Routes */}
             <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />

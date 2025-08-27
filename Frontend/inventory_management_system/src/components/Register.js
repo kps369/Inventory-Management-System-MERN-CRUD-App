@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -24,14 +25,19 @@ export default function Register() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
-
             if (!res.ok) {
-                throw new Error(data.msg || 'Something went wrong');
+                // Handle non-JSON responses gracefully
+                const errorText = await res.text();
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.msg || 'An unknown error occurred');
+                } catch (e) {
+                    throw new Error(errorText || 'An unknown error occurred');
+                }
             }
 
-            // On successful registration, redirect to login page
-            navigate('/login');
+            // On successful registration, redirect to success page
+            navigate('/register-success');
 
         } catch (err) {
             setError(err.message);
@@ -57,14 +63,19 @@ export default function Register() {
                 </div>
                 <div className="mb-3 col-lg-6 col-md-6 col-12 fs-4">
                     <label htmlFor="password" className="form-label fw-bold">Password</label>
-                    <input
-                        type="password"
-                        className="form-control fs-5"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <div className="input-group">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            className="form-control fs-5"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <button className="btn btn-outline-secondary" type="button" onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? 'Hide' : 'Show'}
+                        </button>
+                    </div>
                 </div>
                 {error && <div className="alert alert-danger col-lg-6">{error}</div>}
                 <button type="submit" className="btn btn-primary fs-4" disabled={loading}>
