@@ -51,6 +51,10 @@ export default function Login() {
         }
     };
 
+    const handleGoogleLogin = () => {
+        window.location.href = 'http://localhost:3001/api/auth/google';
+    };
+
     return (
         <div className="container-fluid p-5">
             <h1>Login</h1>
@@ -87,6 +91,12 @@ export default function Login() {
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
+            <hr className="my-4 col-lg-6" />
+            <div className="col-lg-6">
+                <button onClick={handleGoogleLogin} className="btn btn-danger fs-4 w-100">
+                    <i className="fab fa-google me-2"></i> Login with Google
+                </button>
+            </div>
         </div>
     );
 }

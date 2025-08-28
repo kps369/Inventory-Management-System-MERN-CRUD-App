@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true // Allows multiple documents to have a null value for googleId
+    },
     email: {
         type: String,
         required: true,
@@ -9,7 +14,10 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: function() { return !this.googleId; } // Only require a password if googleId is not present
+    },
+    displayName: {
+        type: String
     }
 });
 
