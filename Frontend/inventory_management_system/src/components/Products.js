@@ -6,8 +6,10 @@ export default function Products() {
     const { token } = useContext(AuthContext);
 
     useEffect(() => {
-        getProducts();
-    }, [])
+        if (token) {
+            getProducts();
+        }
+    }, [token])
 
     const [productData, setProductData] = useState([]);
 
@@ -17,13 +19,14 @@ export default function Products() {
             const res = await fetch("http://localhost:3001/products", {
                 method: "GET",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
 
             const data = await res.json();
 
-            if (res.status === 201) {
+            if (res.status === 200) {
                 console.log("Data Retrieved.");
                 setProductData(data);
             }
