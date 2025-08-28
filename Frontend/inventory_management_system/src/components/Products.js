@@ -7,16 +7,24 @@ export default function Products() {
 
     useEffect(() => {
         if (token) {
-            getProducts();
+            const debounceTimer = setTimeout(() => {
+                getProducts();
+            }, 300); // 300ms debounce delay
+
+            return () => clearTimeout(debounceTimer);
         }
-    }, [token])
+    }, [token, searchTerm]);
 
     const [productData, setProductData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const getProducts = async (e) => {
+    const getProducts = async () => {
+        const url = searchTerm
+            ? `http://localhost:3001/products?search=${searchTerm}`
+            : "http://localhost:3001/products";
 
         try {
-            const res = await fetch("http://localhost:3001/products", {
+            const res = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -66,8 +74,19 @@ export default function Products() {
 
             <div className='container-fluid p-5'>
                 <h1>Products Inventory</h1>
-                <div className='add_button'>
-                    <NavLink to="/insertproduct" className='btn btn-primary fs-5'> + Add New Product</NavLink>
+                <div className="d-flex justify-content-between mb-3">
+                    <div className="col-lg-6 col-md-6 col-12">
+                        <input
+                            type="text"
+                            className="form-control fs-5"
+                            placeholder="Search by Product Name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className='add_button'>
+                        <NavLink to="/insertproduct" className='btn btn-primary fs-5'> + Add New Product</NavLink>
+                    </div>
                 </div>
                 <div className="overflow-auto mt-3" style={{ maxHeight: "38rem" }}>
                     <table className="table table-striped table-hover mt-3 fs-5">

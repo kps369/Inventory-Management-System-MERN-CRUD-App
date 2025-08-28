@@ -28,9 +28,15 @@ router.post("/insertproduct", authMiddleware, async (req, res) => {
 
 //Getting(Reading) Data:
 router.get('/products', authMiddleware, async (req, res) => {
+    const { search } = req.query;
+    let query = {};
+
+    if (search) {
+        query.ProductName = { $regex: search, $options: 'i' }; // Case-insensitive regex search
+    }
 
     try {
-        const getProducts = await products.find({})
+        const getProducts = await products.find(query);
         return res.status(200).json(getProducts);
     }
     catch (err) {
