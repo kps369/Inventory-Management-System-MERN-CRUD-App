@@ -1,13 +1,14 @@
 const mongoose = require('mongoose')
-const mongoURI = "mongodb://127.0.0.1:27017/IMS";
+const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/IMS";
 
 const connectToMongo = async () => {
   try {
     mongoose.set("strictQuery", false);
-    mongoose.connect(mongoURI);
+    await mongoose.connect(mongoURI);
     console.log("Connected to Mongo Successfully!");
   } catch (error) {
-    console.log(error);
+    console.log("Error connecting to mongo",error);
+    process.exit(1);
   }
 };
 module.exports = connectToMongo;

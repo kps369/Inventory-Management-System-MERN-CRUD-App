@@ -7,57 +7,70 @@ export default function UpdateProduct() {
     const [productName, setProductName] = useState("");
     const [productPrice, setProductPrice] = useState();
     const [productBarcode, setProductBarcode] = useState();
+    const [productQuantity, setProductQuantity] = useState();
+    const [productCategory, setProductCategory] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate("");
 
     const setName = (e) => {
         setProductName(e.target.value);
-      };
-    
-      const setPrice = (e) => {
+    };
+
+    const setPrice = (e) => {
         setProductPrice(e.target.value);
-      };
-    
-      const setBarcode = (e) => {
+    };
+
+    const setBarcode = (e) => {
         const value = e.target.value.slice(0, 12);
         setProductBarcode(value);
     };
 
-    const {id} = useParams("");
+    const setQuantity = (e) => {
+        setProductQuantity(e.target.value);
+    };
+
+    const setCategory = (e) => {
+        setProductCategory(e.target.value);
+    };
+
+    const { id } = useParams("");
 
     useEffect(() => {
         const getProduct = async () => {
-          try {
-            const res = await fetch(`http://localhost:3001/products/${id}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json"
-              }
-            });
-      
-            const data = await res.json();
-      
-            if (res.status === 201) {
-              console.log("Data Retrieved.");
-              setProductName(data.ProductName);
-              setProductPrice(data.ProductPrice);
-              setProductBarcode(data.ProductBarcode);
-            } else {
-              console.log("Something went wrong. Please try again.");
+            try {
+                const res = await fetch(`http://localhost:3001/products/${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.status === 200) {
+                    console.log("Data Retrieved.");
+                    setProductName(data.ProductName);
+                    setProductPrice(data.ProductPrice);
+                    setProductBarcode(data.ProductBarcode);
+                    setProductQuantity(data.ProductQuantity);
+                    setProductCategory(data.ProductCategory);
+                } else {
+                    console.log("Something went wrong. Please try again.");
+                }
+            } catch (err) {
+                console.log(err);
             }
-          } catch (err) {
-            console.log(err);
-          }
         };
-      
+
         getProduct();
-    }, [id]);
+    }, [id, token]);
 
     const updateProduct = async (e) => {
         e.preventDefault();
 
-        if (!productName || !productPrice || !productBarcode) {
+        if (!productName || !productPrice || !productBarcode || !productQuantity || !productCategory) {
             setError("*Please fill in all the required fields.");
             return;
         }
@@ -72,12 +85,18 @@ export default function UpdateProduct() {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ "ProductName": productName, "ProductPrice": productPrice, "ProductBarcode": productBarcode })
+                body: JSON.stringify({
+                    "ProductName": productName,
+                    "ProductPrice": productPrice,
+                    "ProductBarcode": productBarcode,
+                    "ProductQuantity": productQuantity,
+                    "ProductCategory": productCategory
+                })
             });
 
             await response.json();
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 alert("Data Updated");
                 navigate('/products');
             }
@@ -102,6 +121,14 @@ export default function UpdateProduct() {
             <div className="mt-3 col-lg-6 col-md-6 col-12">
                 <label htmlFor="product_price" className="form-label fs-4 fw-bold">Product Price</label>
                 <input type="number" onChange={setPrice} value={productPrice} className="form-control fs-5" id="product_price" placeholder="Enter Product Price" required />
+            </div>
+            <div className="mt-3 col-lg-6 col-md-6 col-12">
+                <label htmlFor="product_quantity" className="form-label fs-4 fw-bold">Product Quantity</label>
+                <input type="number" onChange={setQuantity} value={productQuantity} className="form-control fs-5" id="product_quantity" placeholder="Enter Product Quantity" required />
+            </div>
+            <div className="mt-3 col-lg-6 col-md-6 col-12">
+                <label htmlFor="product_category" className="form-label fs-4 fw-bold">Product Category</label>
+                <input type="text" onChange={setCategory} value={productCategory} className="form-control fs-5" id="product_category" placeholder="Enter Product Category" required />
             </div>
             <div className="mt-3 mb-5 col-lg-6 col-md-6 col-12">
                 <label htmlFor="product_barcode" className="form-label fs-4 fw-bold">Product Barcode</label>

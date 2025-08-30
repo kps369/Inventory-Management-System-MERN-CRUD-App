@@ -7,6 +7,8 @@ export default function InsertProduct() {
     const [productName, setProductName] = useState("");
     const [productPrice, setProductPrice] = useState();
     const [productBarcode, setProductBarcode] = useState();
+    const [productQuantity, setProductQuantity] = useState();
+    const [productCategory, setProductCategory] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate("");
@@ -24,10 +26,18 @@ export default function InsertProduct() {
         setProductBarcode(value);
     };
 
+    const setQuantity = (e) => {
+        setProductQuantity(e.target.value);
+    }
+
+    const setCategory = (e) => {
+        setProductCategory(e.target.value);
+    }
+
     const addProduct = async (e) => {
         e.preventDefault();
 
-        if (!productName || !productPrice || !productBarcode) {
+        if (!productName || !productPrice || !productBarcode || !productQuantity || !productCategory) {
             setError("*Please fill in all the required fields.");
             return;
         }
@@ -42,7 +52,13 @@ export default function InsertProduct() {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ "ProductName": productName, "ProductPrice": productPrice, "ProductBarcode": productBarcode })
+                body: JSON.stringify({
+                    "ProductName": productName,
+                    "ProductPrice": productPrice,
+                    "ProductBarcode": productBarcode,
+                    "ProductQuantity": productQuantity,
+                    "ProductCategory": productCategory
+                })
             });
 
             await res.json();
@@ -52,6 +68,8 @@ export default function InsertProduct() {
                 setProductName("");
                 setProductPrice(0);
                 setProductBarcode(0);
+                setProductQuantity(0);
+                setProductCategory("");
                 navigate('/products');
             }
             else if (res.status === 422) {
@@ -70,8 +88,8 @@ export default function InsertProduct() {
 
     return (
         <div className='container-fluid p-5'>
-             <h1 className=''>Enter Product Information</h1>
-             
+            <h1 className=''>Enter Product Information</h1>
+
             <div className="mt-5 col-lg-6 col-md-6 col-12 fs-4">
                 <label htmlFor="product_name" className="form-label fw-bold">Product Name</label>
                 <input type="text" onChange={setName} value={productName} className="form-control fs-5" id="product_name" placeholder="Enter Product Name" required />
@@ -79,6 +97,14 @@ export default function InsertProduct() {
             <div className="mt-3 col-lg-6 col-md-6 col-12 fs-4">
                 <label htmlFor="product_price" className="form-label fw-bold">Product Price</label>
                 <input type="number" onChange={setPrice} value={productPrice} className="form-control fs-5" id="product_price" placeholder="Enter Product Price" required />
+            </div>
+            <div className="mt-3 col-lg-6 col-md-6 col-12 fs-4">
+                <label htmlFor="product_quantity" className="form-label fw-bold">Product Quantity</label>
+                <input type="number" onChange={setQuantity} value={productQuantity} className="form-control fs-5" id="product_quantity" placeholder="Enter Product Quantity" required />
+            </div>
+            <div className="mt-3 col-lg-6 col-md-6 col-12 fs-4">
+                <label htmlFor="product_category" className="form-label fw-bold">Product Category</label>
+                <input type="text" onChange={setCategory} value={productCategory} className="form-control fs-5" id="product_category" placeholder="Enter Product Category" required />
             </div>
             <div className="mt-3 mb-5 col-lg-6 col-md-6 col-12 fs-4">
                 <label htmlFor="product_barcode" className="form-label fw-bold">Product Barcode</label>

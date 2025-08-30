@@ -6,11 +6,14 @@ export default function Products() {
     const { token } = useContext(AuthContext);
     const [productData, setProductData] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+    const [totalProducts, setTotalProducts] = useState(0);
 
     const getProducts = useCallback(async () => {
         const url = searchTerm
-            ? `http://localhost:3001/products?search=${searchTerm}`
-            : "http://localhost:3001/products";
+            ? `http://localhost:3001/products?search=${searchTerm}&page=${currentPage}&limit=${itemsPerPage}`
+            : `http://localhost:3001/products?page=${currentPage}&limit=${itemsPerPage}`;
 
         try {
             const res = await fetch(url, {
@@ -24,7 +27,8 @@ export default function Products() {
             const data = await res.json();
 
             if (res.status === 200) {
-                setProductData(data);
+                setProductData(data.products);
+                setTotalProducts(data.totalProducts);
             }
             else {
                 console.log("Something went wrong. Please try again.");
@@ -32,7 +36,7 @@ export default function Products() {
         } catch (err) {
             console.log(err);
         }
-    }, [token, searchTerm]);
+    }, [token, searchTerm, currentPage, itemsPerPage]);
 
     useEffect(() => {
         if (token) {
@@ -90,6 +94,8 @@ export default function Products() {
                                 <th scope="col">#</th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Price</th>
+                                <th scope="col">Product Quantity</th>
+                                <th scope="col">Product Category</th>
                                 <th scope="col">Product Barcode</th>
                                 <th scope="col">Update</th>
                                 <th scope="col">Delete</th>
@@ -105,6 +111,8 @@ export default function Products() {
                                                 <th scope="row">{id + 1}</th>
                                                 <td>{element.ProductName}</td>
                                                 <td>{element.ProductPrice}</td>
+                                                <td>{element.ProductQuantity}</td>
+                                                <td>{element.ProductCategory}</td>
                                                 <td>{element.ProductBarcode}</td>
 
                                                 <td><NavLink to={`/updateproduct/${element._id}`} className="btn btn-primary"><i className="fa-solid fa-pen-to-square"></i></NavLink></td>
@@ -119,7 +127,17 @@ export default function Products() {
                         </tbody>
                     </table>
                 </div>
-
+                <div className="d-flex justify-content-center">
+                    <nav>
+                        <ul className="pagination">
+                            {Array.from({ length: Math.ceil(totalProducts / itemsPerPage) }, (_, i) => i + 1).map(page => (
+                                <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(page)}>{page}</button>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </div>
             </div>
 
         </>

@@ -27,6 +27,9 @@ export default function Navbar(props) {
                     <Link className="nav-link active text-white fs-4" to="/products">Products</Link>
                   </li>
                   <li className="nav-item">
+                    <Link className="nav-link active text-white fs-4" to="/users">Users</Link>
+                  </li>
+                  <li className="nav-item">
                     <button className="btn btn-link nav-link active text-white fs-4" onClick={handleLogout}>Logout</button>
                   </li>
                 </>

@@ -10,6 +10,7 @@ import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import RegistrationSuccess from './components/RegistrationSuccess';
 import AuthCallback from './components/AuthCallback';
+import Users from './components/Users';
 
 import {
   BrowserRouter as Router,
@@ -38,6 +39,7 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
+            <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
             <Route path="/insertproduct" element={<PrivateRoute><InsertProduct /></PrivateRoute>} />
             <Route path="/updateproduct/:id" element={<PrivateRoute><UpdateProduct /></PrivateRoute>} />
           </Routes>

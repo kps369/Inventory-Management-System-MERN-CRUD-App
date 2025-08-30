@@ -9,6 +9,14 @@ const ProductSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        ProductQuantity: {
+            type: Number,
+            required: true,
+        },
+        ProductCategory: {
+            type: String,
+            required: true,
+        },
         ProductBarcode: {
             type: Number,
             required: true,

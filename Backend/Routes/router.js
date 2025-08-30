@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const products = require('../Models/Products');
+const User = require('../Models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 
 //Inserting(Creating) Data:
 router.post("/insertproduct", authMiddleware, async (req, res) => {
-    const { ProductName, ProductPrice, ProductBarcode } = req.body;
+    const { ProductName, ProductPrice, ProductBarcode, ProductQuantity, ProductCategory } = req.body;
 
     try {
         const pre = await products.findOne({ ProductBarcode: ProductBarcode })
@@ -14,7 +15,7 @@ router.post("/insertproduct", authMiddleware, async (req, res) => {
             return res.status(422).json({ error: "Product is already added." });
         }
         else {
-            const addProduct = new products({ ProductName, ProductPrice, ProductBarcode })
+            const addProduct = new products({ ProductName, ProductPrice, ProductBarcode, ProductQuantity, ProductCategory })
 
             await addProduct.save();
             return res.status(201).json(addProduct)
@@ -28,7 +29,7 @@ router.post("/insertproduct", authMiddleware, async (req, res) => {
 
 //Getting(Reading) Data:
 router.get('/products', authMiddleware, async (req, res) => {
-    const { search } = req.query;
+    const { search, page = 1, limit = 10 } = req.query;
     let query = {};
 
     if (search) {
@@ -36,8 +37,19 @@ router.get('/products', authMiddleware, async (req, res) => {
     }
 
     try {
-        const getProducts = await products.find(query);
-        return res.status(200).json(getProducts);
+        const getProducts = await products.find(query)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await products.countDocuments(query);
+
+        return res.status(200).json({
+            products: getProducts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalProducts: count
+        });
     }
     catch (err) {
         console.error(err);
@@ -60,10 +72,10 @@ router.get('/products/:id', authMiddleware, async (req, res) => {
 
 //Editing(Updating) Data:
 router.put('/updateproduct/:id', authMiddleware, async (req, res) => {
-    const { ProductName, ProductPrice, ProductBarcode } = req.body;
+    const { ProductName, ProductPrice, ProductBarcode, ProductQuantity, ProductCategory } = req.body;
 
     try {
-        const updateProducts = await products.findByIdAndUpdate(req.params.id, { ProductName, ProductPrice, ProductBarcode }, { new: true });
+        const updateProducts = await products.findByIdAndUpdate(req.params.id, { ProductName, ProductPrice, ProductBarcode, ProductQuantity, ProductCategory }, { new: true });
         return res.status(200).json(updateProducts);
     }
     catch (err) {
@@ -85,5 +97,50 @@ router.delete('/deleteproduct/:id', authMiddleware, async (req, res) => {
     }
 })
 
+//Getting Product Stats for Dashboard:
+router.get('/products/stats', authMiddleware, async (req, res) => {
+    try {
+        const totalItemsInStock = await products.aggregate([{ $group: { _id: null, total: { $sum: "$ProductQuantity" } } }]);
+        const totalInventoryValue = await products.aggregate([{ $group: { _id: null, total: { $sum: { $multiply: ["$ProductPrice", "$ProductQuantity"] } } } }]);
+        const lowStockItems = await products.find({ ProductQuantity: { $lt: 5 } });
+        const categoryBreakdown = await products.aggregate([{ $group: { _id: "$ProductCategory", count: { $sum: 1 } } }]);
+
+        res.status(200).json({
+            totalItemsInStock: totalItemsInStock[0]?.total || 0,
+            totalInventoryValue: totalInventoryValue[0]?.total || 0,
+            lowStockItems: lowStockItems.length,
+            categoryBreakdown,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+// Getting(Reading) Users Data:
+router.get('/users', authMiddleware, async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    try {
+        const getUsers = await User.find()
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await User.countDocuments();
+
+        return res.status(200).json({
+            users: getUsers,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalUsers: count
+        });
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 module.exports = router;
