@@ -1,24 +1,13 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
 import { NavLink } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext';
 
 export default function Products() {
     const { token } = useContext(AuthContext);
-
-    useEffect(() => {
-        if (token) {
-            const debounceTimer = setTimeout(() => {
-                getProducts();
-            }, 300); // 300ms debounce delay
-
-            return () => clearTimeout(debounceTimer);
-        }
-    }, [token, searchTerm]);
-
     const [productData, setProductData] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const getProducts = async () => {
+    const getProducts = useCallback(async () => {
         const url = searchTerm
             ? `http://localhost:3001/products?search=${searchTerm}`
             : "http://localhost:3001/products";
@@ -35,7 +24,6 @@ export default function Products() {
             const data = await res.json();
 
             if (res.status === 200) {
-                console.log("Data Retrieved.");
                 setProductData(data);
             }
             else {
@@ -44,10 +32,19 @@ export default function Products() {
         } catch (err) {
             console.log(err);
         }
-    }
+    }, [token, searchTerm]);
 
-    const deleteProduct = async (id) => {
+    useEffect(() => {
+        if (token) {
+            const debounceTimer = setTimeout(() => {
+                getProducts();
+            }, 300); // 300ms debounce delay
 
+            return () => clearTimeout(debounceTimer);
+        }
+    }, [token, getProducts]);
+
+    const deleteProduct = useCallback(async (id) => {
         const response = await fetch(`http://localhost:3001/deleteproduct/${id}`, {
             method: "DELETE",
             headers: {
@@ -56,17 +53,15 @@ export default function Products() {
             }
         });
 
-        const deletedata = await response.json();
-        console.log(deletedata);
+        await response.json();
 
-        if (response.status === 422 || !deletedata) {
-            console.log("Error");
-        } else {
+        if (response.status === 200) {
             console.log("Product deleted");
             getProducts();
+        } else {
+            console.log("Error");
         }
-
-    }
+    }, [token, getProducts]);
 
     return (
         <>
